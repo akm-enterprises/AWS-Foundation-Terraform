@@ -12,9 +12,12 @@ terraform {
     aws = {
       source  = "hashicorp/aws"
       version = "~> 3.28.0"
-      region = var.region
-    }
+      }
   }
 
   required_version = ">= 0.14.0"
+}
+
+provider "aws" {
+  region = var.region
 }
