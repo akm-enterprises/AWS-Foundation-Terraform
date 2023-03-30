@@ -63,7 +63,8 @@ data "aws_iam_policy_document" "cloudtrail_policy" {
       identifiers = ["cloudtrail.amazonaws.com"]
     }
 
-    actions   = ["s3:GetBucketAcl"]
+    actions   = ["s3:GetBucketAcl",
+                 "s3:GetBucketLocation"]
     resources = [module.akm_enterprises_cloudtrail_eu.s3_bucket_arn]
   }
 
@@ -77,7 +78,7 @@ data "aws_iam_policy_document" "cloudtrail_policy" {
     }
 
     actions   = ["s3:PutObject"]
-    resources = ["${module.akm_enterprises_cloudtrail_eu.s3_bucket_arn}/prefix/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
+    resources = ["${module.akm_enterprises_cloudtrail_eu.s3_bucket_arn}/*"]
 
     condition {
       test     = "StringEquals"
