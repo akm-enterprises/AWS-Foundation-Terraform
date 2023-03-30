@@ -150,19 +150,19 @@ resource "aws_iam_role_policy_attachment" "akm-enterprises-cloudtrail-s3" {
 
 //3. Create a CloudTrail trail with the S3 bucket as the destination.
 
-resource "aws_cloudtrail" "akm_enterprises_cloudtrail" {
-  name           = "akm-enterprises-cloudtrail"
-  s3_bucket_name = module.akm_enterprises_cloudtrail_eu.s3_bucket_id
-
-  include_global_service_events = true
-  is_multi_region_trail         = true
-  enable_log_file_validation    = true
+# resource "aws_cloudtrail" "akm_enterprises_cloudtrail" {
+#  name           = "akm-enterprises-cloudtrail"
+#  s3_bucket_name = module.akm_enterprises_cloudtrail_eu.s3_bucket_id
+#
+#  include_global_service_events = true
+#  is_multi_region_trail         = true
+#  enable_log_file_validation    = true
 
 #  cloud_watch_logs_group_arn = aws_cloudwatch_log_group.akm-enterprises-cloudtrail.arn
 #  cloud_watch_logs_role_arn  = aws_iam_role.cloudtrail_role.arn
 
-  kms_key_id = aws_kms_key.akm-enterprises-cloudtrail.arn
-}
+#  kms_key_id = aws_kms_key.akm-enterprises-cloudtrail.arn
+# }
 
 
 //4. terraform-aws-Create a CloudWatch Logs log group called "akm-enterprises-cloudtrail" with retention of 365 days to store CloudTrail logs.
