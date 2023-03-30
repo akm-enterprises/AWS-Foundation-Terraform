@@ -22,6 +22,10 @@ versioning = {
       }
     }
   }
+  block_public_acls   = true
+  block_public_policy = true
+  ignore_public_acls  = true
+  restrict_public_buckets = true
 lifecycle_rule = {
     rule = {
       id      = "akm-enterprises-cloudtrail-eu-lifecycle"
