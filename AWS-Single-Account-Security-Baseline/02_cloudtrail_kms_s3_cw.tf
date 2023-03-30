@@ -168,11 +168,11 @@ resource "aws_cloudtrail" "akm_enterprises_cloudtrail" {
   include_global_service_events = true
   is_multi_region_trail         = true
   enable_log_file_validation    = true
-#  cloud_watch_logs_group_arn    = aws_cloudwatch_log_group.akm-enterprises-cloudtrail.arn
-#  cloud_watch_logs_role_arn     = aws_iam_role.cloudtrail_role.arn
+  cloud_watch_logs_group_arn    = aws_cloudwatch_log_group.akm-enterprises-cloudtrail.arn
+  cloud_watch_logs_role_arn     = aws_iam_role.cloudtrail_role.arn
   kms_key_id                    = aws_kms_key.akm-enterprises-cloudtrail.arn
 
-#  depends_on = [aws_cloudwatch_log_group.akm-enterprises-cloudtrail]
+  depends_on = [aws_cloudwatch_log_group.akm-enterprises-cloudtrail]
 }
 
 
