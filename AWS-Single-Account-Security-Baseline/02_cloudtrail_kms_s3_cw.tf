@@ -66,23 +66,23 @@ lifecycle_rule = {
         }
       },
       {
-      "Sid": "AWSCloudTrailAclCheck",
-      "Effect": "Allow",
-      "Principal": {
+      Sid: "AWSCloudTrailAclCheck",
+      Effect: "Allow",
+      Principal: {
         "Service": "cloudtrail.amazonaws.com"
       },
-      "Action": "s3:GetBucketAcl",
-      "Resource": "module.akm_enterprises_cloudtrail_eu.s3_bucket_arn"
+      Action: "s3:GetBucketAcl",
+      Resource: "module.akm_enterprises_cloudtrail_eu.s3_bucket_arn"
     },
     {
-      "Sid": "AWSCloudTrailWrite",
-      "Effect": "Allow",
-      "Principal": {
+      Sid: "AWSCloudTrailWrite",
+      Effect: "Allow",
+      Principal: {
         "Service": "cloudtrail.amazonaws.com"
       },
-      "Action": "s3:PutObject",
-      "Resource": "module.akm_enterprises_cloudtrail_eu.s3_bucket_arn/*",
-      "Condition": {
+      Action: "s3:PutObject",
+      Resource: "module.akm_enterprises_cloudtrail_eu.s3_bucket_arn/*",
+      Condition: {
         "StringEquals": {
           "s3:x-amz-acl": "bucket-owner-full-control"
         }
