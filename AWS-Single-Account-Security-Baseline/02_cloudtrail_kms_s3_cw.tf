@@ -86,20 +86,25 @@ data "aws_iam_policy_document" "cloudtrail_policy" {
     }
   }
   statement {
+    sid    = "EnforceHttps"
+    effect = "Deny"
     actions   = ["s3:*"]
-    resources = ["module.akm_enterprises_cloudtrail_eu.s3_bucket_arn/*"]
+    resources = ["${module.akm_enterprises_cloudtrail_eu.s3_bucket_arn}/*"]
 
     condition {
       test     = "Bool"
       variable = "aws:SecureTransport"
-      values   = ["true"]
+      values   = ["false"]
     }
   }
 }
+
 resource "aws_s3_bucket_policy" "cloudtrail" {
   bucket = module.akm_enterprises_cloudtrail_eu.s3_bucket_id
   policy = data.aws_iam_policy_document.cloudtrail_policy.json
 }
+
+
 
 
 resource "aws_iam_role" "akm-enterprises-cloudtrail-s3" {
