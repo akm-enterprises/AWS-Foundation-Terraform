@@ -91,6 +91,11 @@ data "aws_iam_policy_document" "cloudtrail_policy" {
     actions   = ["s3:*"]
     resources = ["${module.akm_enterprises_cloudtrail_eu.s3_bucket_arn}/*"]
 
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
     condition {
       test     = "Bool"
       variable = "aws:SecureTransport"
@@ -103,6 +108,7 @@ resource "aws_s3_bucket_policy" "cloudtrail" {
   bucket = module.akm_enterprises_cloudtrail_eu.s3_bucket_id
   policy = data.aws_iam_policy_document.cloudtrail_policy.json
 }
+
 
 
 
