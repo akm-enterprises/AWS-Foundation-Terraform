@@ -3,6 +3,69 @@
 
 //1. AWS terraform request. Create "akm-enterprises-cloudtrail-eu" S3 bucket, https enforced, KMS CMK key "aws_kms_key.akm-enterprises-cloudtrail.arn" s3 lifecycle policy of moving object to IA tier after 30 days, to galicer after 90 days and expiry object after 365 days.//
 
+module "akm_enterprises_cloudtrail_eu" {
+  source = "terraform-aws-modules/s3-bucket/aws"
+
+  bucket = "akm-enterprises-cloudtrail-eu"
+  acl    = "private"
+
+versioning = {
+    enabled = true
+  }
+
+
+  server_side_encryption_configuration = {
+    rule = {
+      apply_server_side_encryption_by_default = {
+        kms_master_key_id = aws_kms_key.akm-enterprises-cloudtrail.arn
+        sse_algorithm     = "aws:kms"
+      }
+    }
+  }
+lifecycle_rule = {
+    rule = {
+      id      = "akm-enterprises-cloudtrail-eu-lifecycle"
+      status = "Enabled"
+
+      transition = [
+        {
+          days          = 30
+          storage_class = "STANDARD_IA"
+        },
+        {
+          days          = 90
+          storage_class = "GLACIER"
+        },
+      ]
+
+      expiration = {
+        days = 365
+      }
+    }
+  }
+  attach_policy = true
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "s3:*"
+        Effect = "Deny"
+        Resource = [
+          module.akm_enterprises_cloudtrail_eu.s3_bucket_arn,
+          "${module.akm_enterprises_cloudtrail_eu.s3_bucket_arn}/*"
+        ]
+        Principal = "*"
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      }
+    ]
+  })
+}
+
+
 
 resource "aws_iam_role" "akm-enterprises-cloudtrail-s3" {
   name = "akm-enterprises-cloudtrail-s3"
@@ -51,6 +114,21 @@ resource "aws_iam_role_policy_attachment" "akm-enterprises-cloudtrail-s3" {
 }
 
 //3. Create a CloudTrail trail with the S3 bucket as the destination.
+
+resource "aws_cloudtrail" "akm_enterprises_cloudtrail" {
+  name           = "akm-enterprises-cloudtrail"
+  s3_bucket_name = module.akm_enterprises_cloudtrail_eu.s3_bucket_id
+
+  include_global_service_events = true
+  is_multi_region_trail         = true
+  enable_log_file_validation    = true
+
+  cloud_watch_logs_group_arn = aws_cloudwatch_log_group.akm-enterprises-cloudtrail.arn
+  cloud_watch_logs_role_arn  = aws_iam_role.cloudtrail_role.arn
+
+  kms_key_id = aws_kms_key.akm-enterprises-cloudtrail.arn
+}
+
 
 //4. terraform-aws-Create a CloudWatch Logs log group called "akm-enterprises-cloudtrail" with retention of 365 days to store CloudTrail logs.
 
