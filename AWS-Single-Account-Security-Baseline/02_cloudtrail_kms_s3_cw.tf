@@ -90,9 +90,6 @@ data "aws_iam_policy_document" "cloudtrail_policy" {
     effect = "Deny"
     actions   = ["s3:*"]
     resources = ["${module.akm_enterprises_cloudtrail_eu.s3_bucket_arn}/*"]
-    principals {
-      type        = "*"
-    }
 
     condition {
       test     = "Bool"
@@ -106,6 +103,7 @@ resource "aws_s3_bucket_policy" "cloudtrail" {
   bucket = module.akm_enterprises_cloudtrail_eu.s3_bucket_id
   policy = data.aws_iam_policy_document.cloudtrail_policy.json
 }
+
 
 
 
