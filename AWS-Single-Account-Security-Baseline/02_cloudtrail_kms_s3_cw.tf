@@ -3,6 +3,9 @@
 
 //1. AWS terraform request. Create "akm-enterprises-cloudtrail-eu" S3 bucket, https enforced, KMS CMK key "aws_kms_key.akm-enterprises-cloudtrail.arn" s3 lifecycle policy of moving object to IA tier after 30 days, to galicer after 90 days and expiry object after 365 days.//
 
+data "aws_caller_identity" "current" {}
+
+
 module "akm_enterprises_cloudtrail_eu" {
   source = "terraform-aws-modules/s3-bucket/aws"
 
@@ -47,51 +50,56 @@ lifecycle_rule = {
       }
     }
   }
-  attach_policy = true
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "s3:*"
-        Effect = "Deny"
-        Resource = [
-          module.akm_enterprises_cloudtrail_eu.s3_bucket_arn,
-          "${module.akm_enterprises_cloudtrail_eu.s3_bucket_arn}/*"
-        ]
-        Principal = "*"
-        Condition = {
-          Bool = {
-            "aws:SecureTransport" = "false"
-          }
-        }
-      },
-      {
-      Sid: "AWSCloudTrailAclCheck",
-      Effect: "Allow",
-      Principal: {
-        "Service": "cloudtrail.amazonaws.com"
-      },
-      Action: "s3:GetBucketAcl",
-      Resource: "module.akm_enterprises_cloudtrail_eu.s3_bucket_arn"
-    },
-    {
-      Sid: "AWSCloudTrailWrite",
-      Effect: "Allow",
-      Principal: {
-        "Service": "cloudtrail.amazonaws.com"
-      },
-      Action: "s3:PutObject",
-      Resource: "module.akm_enterprises_cloudtrail_eu.s3_bucket_arn/*",
-      Condition: {
-        "StringEquals": {
-          "s3:x-amz-acl": "bucket-owner-full-control"
-        }
-      }
-    }
-    ]
-  })
+  attach_policy = false
 }
 
+data "aws_iam_policy_document" "cloudtrail_policy" {
+  statement {
+    sid    = "AWSCloudTrailAclCheck"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+
+    actions   = ["s3:GetBucketAcl"]
+    resources = [module.akm_enterprises_cloudtrail_eu.s3_bucket_arn]
+  }
+
+  statement {
+    sid    = "AWSCloudTrailWrite"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+
+    actions   = ["s3:PutObject"]
+    resources = ["${module.akm_enterprises_cloudtrail_eu.s3_bucket_arn}/prefix/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
+    }
+  }
+  statement {
+    actions   = ["s3:*"]
+    resources = ["module.akm_enterprises_cloudtrail_eu.s3_bucket_arn/*"]
+
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["true"]
+    }
+  }
+}
+resource "aws_s3_bucket_policy" "cloudtrail" {
+  bucket = module.akm_enterprises_cloudtrail_eu.s3_bucket_id
+  policy = data.aws_iam_policy_document.cloudtrail_policy.json
+}
 
 
 resource "aws_iam_role" "akm-enterprises-cloudtrail-s3" {
