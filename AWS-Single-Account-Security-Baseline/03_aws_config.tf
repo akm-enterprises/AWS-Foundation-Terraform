@@ -66,10 +66,6 @@ resource "aws_iam_role" "config_role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "config_policy_attachment" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSConfigRole"
-  role       = aws_iam_role.config_role.name
-}
 
 resource "aws_config_configuration_recorder_status" "config_recorder_status" {
   name       = aws_config_configuration_recorder.config_recorder.name
