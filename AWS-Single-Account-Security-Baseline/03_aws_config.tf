@@ -12,6 +12,13 @@ resource "aws_s3_bucket" "akm_enterprises_configlog_eu" {
       }
     }
   }
+  # Block public access settings
+  public_access_block_configuration {
+    block_public_acls   = true
+    block_public_policy = true
+    ignore_public_acls  = true
+    restrict_public_buckets = true
+  }
 }
 
 data "aws_iam_policy_document" "akm_enterprises_configlog_eu_bucket_policy" {
