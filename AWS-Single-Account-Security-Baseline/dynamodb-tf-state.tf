@@ -27,7 +27,7 @@ module "dynamodb_table" {
       non_key_attributes = ["Digest"]
     },
   ]
-
+  billing_mode = "PROVISIONED"
   read_capacity  = 5
   write_capacity = 5
   server_side_encryption_enabled = true
