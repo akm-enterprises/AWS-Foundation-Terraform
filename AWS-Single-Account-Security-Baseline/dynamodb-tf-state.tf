@@ -30,6 +30,13 @@ module "dynamodb_table" {
 
   read_capacity  = 5
   write_capacity = 5
+    server_side_encryption = {
+    enabled = true
+  }
+
+    point_in_time_recovery = {
+    enabled = true
+  }
 }
 
 output "dynamodb_table_arn" {
